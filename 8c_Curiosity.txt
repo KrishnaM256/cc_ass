@@ -1,0 +1,69 @@
+%{
+#include <stdio.h>
+#include <string.h>
+%}
+
+%%
+
+// Whitespace and punctuation
+[\t\n ]+              ;  // Ignore whitespace
+[.,!?]               ;   // Ignore punctuation
+
+// Articles / Determiners
+[Tt]he|[Aa]n|[Aa]     { printf("%s: Article\n", yytext); }
+
+// Pronouns
+[Ii]ts|[Hh]is|[Hh]er|[Tt]heir|[Mm]y|[Yy]our|[Yy]ou|[Ii]|[Hh]e|[Ss]he|[Ww]e|[Tt]hey { printf("%s: Pronoun\n", yytext); }
+
+// Verbs
+[Ii]s|[Aa]re|[Ww]as|[Ww]ere|[Bb]e|[Hh]as|[Hh]ave|[Hh]ad|[Ss]top|[Ee]xisting { printf("%s: Verb\n", yytext); }
+
+// Prepositions
+[Tt]o|[Ff]or|[Ww]ith|[Ff]rom|[Aa]t|[Oo]n|[Ii]n|[Bb]y|[Oo]ver|[Uu]nder { printf("%s: Preposition\n", yytext); }
+
+// Adjectives
+[Ii]mportant|[Oo]wn { printf("%s: Adjective\n", yytext); }
+
+// Nouns (Common words in input)
+[Tt]hing|[Qq]uestioning|[Cc]uriosity|[Rr]eason { printf("%s: Noun\n", yytext); }
+
+// Adverbs (not in this sentence but for completeness)
+[Nn]ot|[Aa]lways|[Ss]ometimes|[Nn]ever { printf("%s: Adverb\n", yytext); }
+
+// Catch-all for any other word
+[A-Za-z]+           { printf("%s: Possibly a Noun\n", yytext); }
+
+.                   { printf("%s: Unknown token\n", yytext); }
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    printf("Enter input text:\n");
+    yylex();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+Save the above code in a file named pos_lexer.l
+
+Open terminal and run:
+
+bash
+Copy
+Edit
+lex pos_lexer.l
+gcc lex.yy.c -o pos_lexer
+./pos_lexer

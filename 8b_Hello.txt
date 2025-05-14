@@ -1,0 +1,96 @@
+%{
+#include <stdio.h>
+#include <string.h>
+%}
+
+%%
+[\t\n ]+                 ;  // Ignore spaces, tabs, newlines
+
+// Interjections
+[Hh]ello|[Hh]i|[Hh]ey|[Tt]hanks|[Tt]hank|[Oo]h|[Ww]ow   { printf("%s: Interjection\n", yytext); }
+
+// Pronouns
+[Ii]|[Yy]ou|[Ww]e|[Hh]e|[Ss]he|[Tt]hey|[Ii]t          { printf("%s: Pronoun\n", yytext); }
+
+// Verbs
+[Aa]re|[Aa]m|[Ii]s|[Ww]as|[Ww]ere|[Bb]e|[Hh]ave|[Hh]as|[Hh]ad|[Mm]'?m|[Aa]'?m  { printf("%s: Verb\n", yytext); }
+
+// Adjectives
+[Ff]ine|[Gg]ood|[Ss]mall|[Bb]ig|[Ss]trong|[Hh]appy     { printf("%s: Adjective\n", yytext); }
+
+// Adverbs
+[Qq]uickly|[Ss]lowly|[Ww]ell|[Vv]ery|[Rr]eally         { printf("%s: Adverb\n", yytext); }
+
+// Conjunctions
+[Aa]nd|[Oo]r|[Bb]ut|[Ss]o|[Yy]et                       { printf("%s: Conjunction\n", yytext); }
+
+// Prepositions
+[Oo]n|[Ii]n|[Aa]t|[Ff]rom|[Tt]o|[Ww]ith|[Bb]y          { printf("%s: Preposition\n", yytext); }
+
+// General fallback: Unrecognized words — likely nouns
+[A-Za-z]+              { printf("%s: Possibly a Noun\n", yytext); }
+
+// Ignore punctuation
+[.,!?']                ;
+
+.                      { printf("%s: Unknown token\n", yytext); }
+%%
+
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    printf("Enter input text:\n");
+    yylex();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+1. Save the file as pos_analyzer.l
+2. Compile using lex and gcc:
+bash
+Copy
+Edit
+lex pos_analyzer.l
+gcc lex.yy.c -o pos_analyzer
+3. Run the analyzer:
+bash
+Copy
+Edit
+./pos_analyzer
+🧪 Input:
+css
+Copy
+Edit
+Hello! How are you?
+I’m fine, Thank You.
+
+
+
+
+
+🔍 Possible Viva Questions:
+Q1: What is yytext?
+A: It is a global character pointer provided by Lex that holds the current matched token.
+
+Q2: What happens if no pattern matches a token?
+A: The fallback pattern . catches any unmatched characters and labels them as "Unknown token".
+
+Q3: Can this program handle complex grammar?
+A: No, it's basic lexical analysis. It can match known words but cannot analyze sentence structure (syntax). For that, a parser like Yacc would be needed.
+
+Q4: What are the limitations?
+Fixed word lists (no learning or dynamic dictionary)
+
+Case-sensitive unless explicitly handled
+
+Cannot resolve ambiguity (e.g., "run" as noun vs verb)

@@ -1,0 +1,65 @@
+sym_dict = {'A': 110, 'B': 111, 'LOOP': 102, 'BACK': 106, 'X': 110}
+lit_dict = {"='2'": 112, "='5'": 113}
+IS = ['READ', 'ADD', 'MOVER', 'SUB', 'MOVEM', 'MULT', 'COMP', 'BC', 'STOP']
+DL = ['DS', 'DC', 'EQU']
+ad = ['START', 'END', 'LTORG']
+reg = ['AREG', 'BREG', 'CREG', 'DREG']
+
+def clean_operands(x):
+    result = []
+    for item in x:
+        parts = item.strip().split(',')
+        for part in parts:
+            part = part.strip().replace("’", "'").replace("‘", "'").replace("“", '"').replace("”", '"')
+            if part:
+                result.append(part)
+    return result
+
+def gen_interm_code(x, f3):
+    x = clean_operands(x)
+    if not x:
+        return
+
+    if x[0] not in IS + DL + ad:
+        x = x[1:]
+
+    for i in x:
+        if i in ad:
+            if i == 'START':
+                f3.write("AD 01 C " + x[1])
+            elif i == 'END':
+                f3.write("AD 02")
+            elif i == 'LTORG':
+                f3.write("AD 03")
+            return
+        elif i in IS:
+            f3.write("IS " + str(IS.index(i) + 1) + " ")
+        elif i in DL:
+            if i == 'EQU':
+                f3.write("DL " + str(DL.index(i)) + " ")
+                return
+            f3.write("DL " + str(DL.index(i)) + " C " + x[x.index(i) + 1])
+            return
+        elif i in reg:
+            f3.write(" " + i + " ")
+        elif i in lit_dict:
+            f3.write(" L " + str(list(lit_dict).index(i) + 1) + " ")
+        elif i in sym_dict:
+            f3.write(" S " + str(list(sym_dict).index(i) + 1) + " ")
+
+file1 = open("INPUT.txt", 'r')
+lines = file1.readlines()
+f3 = open("inter.txt", 'w')
+f3.write("\tINTERMEDIATE CODE\n")
+
+print("✅ Intermediate Code:")
+for line in lines:
+    x = line.strip().split()
+    if len(x) > 0:
+        f3.write(line.strip() + "\n\t-> ")
+        print(line.strip())
+        gen_interm_code(x, f3)
+        f3.write("\n")
+file1.close()
+f3.close()
+

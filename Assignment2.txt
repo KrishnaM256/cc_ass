@@ -1,0 +1,124 @@
+code = open("input2.txt", "r")
+mnt = open("mnt.txt", "a+")
+mdt = open("mdt.txt", "a+")
+fpvpp = open("fpvpp", "a+")
+intermediate = open("intermediate.txt", "w")
+
+mnt.write("Macro_Name \t Start-End \n")
+
+mntable = []
+mdtable = []
+
+mntp = 0
+mdtp = 0
+flag = False
+
+lines = code.readlines()
+
+for l in lines:
+    x = l.strip().split()
+
+    if len(x) > 0:
+        if x[0] == "MACRO":
+            flag = True
+            mntp += 1
+            mntable.append(x[1])         # Macro name
+            mntable.append(mdtp)         # MDT start index
+
+            if len(x) > 2:
+                # parameters exist
+                l_index = mntp * 3
+                fpvpp.write(mntable[l_index - 3] + "\n")
+                for i in range(2, len(x)):
+                    fpvpp.write(x[i] + " " + str(i - 1) + "\n")
+                fpvpp.write("\n")
+
+        elif x[0] == "MEND":
+            flag = False
+            mntable.append(mdtp - 1)      # MDT end index
+            l_index = mntp * 3
+            mnt.write(mntable[l_index - 3] + " " + str(mntable[l_index - 2]) + " " + str(mntable[l_index - 1]) + "\n")
+
+        elif flag:
+            # Inside macro definition
+            for i in x:
+                mdt.write(str(i) + " ")
+            mdt.write(str(mdtp) + "\n")
+            mdtp += 1
+
+        else:
+            # Outside macro: copy to intermediate code
+            intermediate.write(l)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The provided Python script is part of a **Macro Processor – Pass 1** implementation, which prepares data structures needed to expand macros during assembly language processing. Here's a short theory explaining what it does:
+
+---
+
+### 🔧 **Purpose:**
+
+This code performs **Pass 1 of Macro Processing** for an assembler. It reads an input file containing macro definitions and creates:
+
+* **MNT (Macro Name Table)** – stores macro names and their MDT index ranges.
+* **MDT (Macro Definition Table)** – stores the actual macro body.
+* **FPVPP (Formal Parameter vs Positional Parameter)** – maps macro parameters to positional notation.
+* **Intermediate Code** – stores non-macro code lines for further processing.
+
+---
+
+### 🔄 **Working:**
+
+1. **Input Reading:**
+
+   * Reads lines from `input2.txt`.
+
+2. **Macro Detection:**
+
+   * If a line starts with `"MACRO"`, it marks the beginning of a macro.
+   * Stores macro name and the starting index in MDT.
+   * If parameters exist, they are mapped to positional values in `fpvpp`.
+
+3. **Macro Body Recording:**
+
+   * Lines between `"MACRO"` and `"MEND"` are written to `mdt.txt` along with a line number.
+   * MDT index (`mdtp`) is incremented for each line.
+
+4. **Macro End Handling:**
+
+   * On encountering `"MEND"`, the macro's end index is stored in MNT.
+   * A complete MNT entry is written in the format: `MacroName StartIndex EndIndex`.
+
+5. **Intermediate Code:**
+
+   * All lines outside macro definitions are written to `intermediate.txt`.
+
+---
+
+### 📝 Summary of Output Files:
+
+* `mnt.txt`: List of macros with their start and end index in MDT.
+* `mdt.txt`: Actual lines of macro body.
+* `fpvpp`: Parameter mappings.
+* `intermediate.txt`: Program code without macro definitions.
+
+---
+
+This prepares everything required for **Pass 2**, where macros are expanded in the actual program.

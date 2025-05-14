@@ -1,0 +1,73 @@
+%{
+#include <stdio.h>
+%}
+
+%%
+
+// Whitespace and newlines
+[ \t\n]+                   ; // Ignore
+
+// C Keywords
+"int"                     { printf("%s: Keyword\n", yytext); }
+
+// Identifiers
+[a-zA-Z_][a-zA-Z0-9_]*     { printf("%s: Identifier\n", yytext); }
+
+// Numbers
+[0-9]+                    { printf("%s: Number\n", yytext); }
+
+// Operators
+"="                       { printf("=: Assignment Operator\n"); }
+"–"|"\\-"                 { printf("-: Subtraction Operator\n"); } // handles both – and -
+";"                       { printf(";: Semicolon\n"); }
+","                       { printf(",: Comma\n"); }
+
+// Braces
+"{"                       { printf("{: Opening Brace\n"); }
+"}"                       { printf("}: Closing Brace\n"); }
+
+.                         { printf("%s: Unknown or unrecognized\n", yytext); }
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    printf("Enter C code:\n");
+    yylex();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+Save this code in a file named c_lexer.l
+
+Open terminal and run:
+
+bash
+Copy
+Edit
+lex c_lexer.l
+gcc lex.yy.c -o c_lexer
+./c_lexer
+Paste your input:
+
+c
+Copy
+Edit
+{
+int m=10,n=2,o;
+o = m – n;
+}

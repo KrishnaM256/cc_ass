@@ -1,0 +1,74 @@
+Step 1: caseconv.l 
+
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+[a-zA-Z]+    { yylval.str = strdup(yytext); return WORD; }
+.|\n         { return yytext[0]; }
+
+%%
+int yywrap() { return 1; }
+
+
+Step 2: caseconv.y 
+
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+int yylex(void);
+int yyerror(const char *s);
+
+%}
+
+%union {
+    char* str;
+}
+
+%token <str> WORD
+%start input
+
+%%
+
+input:
+    WORD {
+        char *converted = strdup($1);
+        for (int i = 0; converted[i] != '\0'; i++) {
+            if (islower(converted[i]))
+                converted[i] = toupper(converted[i]);
+            else if (isupper(converted[i]))
+                converted[i] = tolower(converted[i]);
+        }
+        printf("Converted: %s\n", converted);
+        free(converted);
+    }
+    ;
+
+%%
+
+int yyerror(const char *s) {
+    fprintf(stderr, "Parse error: %s\n", s);
+    return 0;
+}
+
+int main() {
+    printf("Enter a word: ");
+    return yyparse();
+}
+
+
+
+
+
+
+
+
+yacc -d caseconv.y
+lex caseconv.l
+gcc y.tab.c lex.yy.c -o caseconv
+./caseconv

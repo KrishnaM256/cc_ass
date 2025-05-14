@@ -1,0 +1,95 @@
+%{
+#include <stdio.h>
+#include <string.h>
+%}
+
+%%
+[\t\n ]+           ; // ignore whitespace
+
+// Pronouns
+[Ii]|[Yy]ou|[Hh]e|[Ss]he|[Tt]hey|[Ww]e|[Ii]t    { printf("%s: Pronoun\n", yytext); }
+
+// Verbs (simple forms)
+[Dd]read|[Rr]un|[Aa]rrives|[Gg]o|[Dd]oes|[Hh]as|[Hh]ave|[Bb]e|[Ww]as|[Ww]ere|[Ii]s|[Aa]m|[Ww]ill|[Cc]an|[Ss]hould  { printf("%s: Verb\n", yytext); }
+
+// Adjectives
+[Hh]appy|[Ss]ad|[Ss]ame|[Gg]ood|[Bb]ad|[Ll]ucky|[Ss]trong  { printf("%s: Adjective\n", yytext); }
+
+// Adverbs
+[Vv]ery|[Qq]uickly|[Ss]lowly|[Aa]lways|[Nn]ever|[Ss]ometimes|[Tt]oo|[Aa]lso  { printf("%s: Adverb\n", yytext); }
+
+// Prepositions
+[Ff]rom|[Tt]o|[Aa]bove|[Bb]elow|[Ii]n|[Oo]n|[Aa]t|[Ww]ith|[Bb]y|[Bb]etween  { printf("%s: Preposition\n", yytext); }
+
+// Conjunctions
+[Aa]nd|[Bb]ut|[Oo]r|[Ss]o|[Yy]et|[Ff]or|[Nn]or|[Tt]hat  { printf("%s: Conjunction\n", yytext); }
+
+// Nouns (fallback)
+[A-Za-z]+          { printf("%s: Possibly a Noun\n", yytext); }
+
+// Punctuation
+[.,!?]             { /* ignore punctuation */ }
+
+.                  { printf("%s: Unknown token\n", yytext); }
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    printf("Enter a sentence:\n");
+    yylex();
+    return 0;
+}
+
+
+
+1. Save the file as pos_lexer.l
+2. Compile it:
+sh
+Copy
+Edit
+lex pos_lexer.l
+gcc lex.yy.c -o pos_lexer
+3. Run it:
+sh
+Copy
+Edit
+./pos_lexer
+4. Input when prompted:
+css
+Copy
+Edit
+Dread it. Run from it. 
+Destiny arrives all the same.
+
+
+
+
+
+
+
+
+
+
+
+
+
+🔍 Possible Viva Questions:
+Q1: What is yytext?
+A: It is a global character pointer provided by Lex that holds the current matched token.
+
+Q2: What happens if no pattern matches a token?
+A: The fallback pattern . catches any unmatched characters and labels them as "Unknown token".
+
+Q3: Can this program handle complex grammar?
+A: No, it's basic lexical analysis. It can match known words but cannot analyze sentence structure (syntax). For that, a parser like Yacc would be needed.
+
+Q4: What are the limitations?
+Fixed word lists (no learning or dynamic dictionary)
+
+Case-sensitive unless explicitly handled
+
+Cannot resolve ambiguity (e.g., "run" as noun vs verb)

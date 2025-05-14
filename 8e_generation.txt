@@ -1,0 +1,65 @@
+%{
+#include <stdio.h>
+%}
+
+%%
+
+[ \t\n]+                  ;  // Ignore spaces and tabs
+[.,!?]                   ;  // Ignore punctuation
+
+// Articles
+[Tt]he|[Aa]n|[Aa]         { printf("%s: Article\n", yytext); }
+
+// Pronouns
+[Ii]tself|[Ii]t|[Tt]hat|[Oo]ne { printf("%s: Pronoun\n", yytext); }
+
+// Conjunctions
+[Aa]nd|[Oo]r|[Bb]ut        { printf("%s: Conjunction\n", yytext); }
+
+// Prepositions
+[Tt]o|[Bb]efore|[Aa]fter|[Tt]han { printf("%s: Preposition\n", yytext); }
+
+// Verbs
+[Bb]e|[Ww]ent|[Cc]omes|[Ii]magines { printf("%s: Verb\n", yytext); }
+
+// Adjectives
+[Ii]ntelligent|[Ww]iser|[Ee]very|[Mm]ore { printf("%s: Adjective\n", yytext); }
+
+// Nouns (specific to sentence)
+[Gg]eneration { printf("%s: Noun\n", yytext); }
+
+// Catch-all: likely noun or unclassified
+[A-Za-z]+                  { printf("%s: Possibly a Noun\n", yytext); }
+
+.                          ; // Ignore any other characters
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    printf("Enter input text:\n");
+    yylex();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+Save the file as pos_lexer.l
+
+Open terminal and run:
+
+bash
+Copy
+Edit
+lex pos_lexer.l
+gcc lex.yy.c -o pos_lexer
+./pos_lexer

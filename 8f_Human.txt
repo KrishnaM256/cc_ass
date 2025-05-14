@@ -1,0 +1,67 @@
+%{
+#include <stdio.h>
+%}
+
+%%
+
+// Ignore whitespace and punctuation
+[ \t\n]+                          ;
+[.,!?]                            ;
+
+// Articles / Determiners
+[Aa]n|[Aa]|[Tt]he                 { printf("%s: Article\n", yytext); }
+
+// Pronouns
+[Nn]othing                        { printf("%s: Pronoun\n", yytext); }
+
+// Conjunctions
+[Aa]nd|[Bb]ut|[Oo]r               { printf("%s: Conjunction\n", yytext); }
+
+// Prepositions
+[Tt]oward|[Ww]ith|[Ii]n|[Bb]etween { printf("%s: Preposition\n", yytext); }
+
+// Verbs
+[Hh]ave|[Dd]ivide                { printf("%s: Verb\n", yytext); }
+
+// Adjectives
+[Ss]trong|[Dd]ramatic|[Bb]inary|[Bb]asic|[Dd]istinct|[Ee]mpty { printf("%s: Adjective\n", yytext); }
+
+// Nouns (manually selected for this input)
+[Hh]uman|[Bb]eings|[Ii]nstinct|[Tt]hinking|[Uu]rge|[Tt]hings|[Gg]roups|[Gg]ap { printf("%s: Noun\n", yytext); }
+
+// Numbers (like "two")
+[Oo]ne|[Tt]wo|[Tt]hree           { printf("%s: Number\n", yytext); }
+
+// Catch-all for unknown words
+[A-Za-z]+                        { printf("%s: Possibly a Noun\n", yytext); }
+
+.                                ; // Ignore any other characters
+
+%%
+
+int yywrap() {
+    return 1;
+}
+
+int main() {
+    printf("Enter input text:\n");
+    yylex();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+Save the file as pos_lexer.l and then run:
+
+bash
+Copy
+Edit
+lex pos_lexer.l
+gcc lex.yy.c -o pos_lexer
+./pos_lexer
