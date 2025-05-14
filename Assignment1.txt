@@ -1,0 +1,154 @@
+package com.VIIT;
+import java.util.*;
+import java.io.*;
+
+//Generate Symbol table, Literal table, Pool table &amp;
+//Intermediate code of a two-pass Assembler for the
+//given Assembly language source code.
+
+public class Assignment1 {
+	static List<String> AD = Arrays.asList("START","END");
+	static List<String> IS = Arrays.asList("ADD", "MOVER", "SUB", "MOVEM", "MULT", "PRINT");
+	static List<String> DL = Arrays.asList("DS","DC");
+	static List<String> REG = Arrays.asList("AREG","BREG","CREG","DREG");
+	static List<String> SYMB = Arrays.asList("NEXT", "LOOP", "LOAD");
+	
+	static Map<String,Integer> symTab = new LinkedHashMap<>();
+	static Map<String,Integer> litTab = new LinkedHashMap<>();
+	static List<String[]> lines = new ArrayList<>();
+	static List<Integer> poolTab = new ArrayList<>();
+	
+	static int lc =0;
+	static int litIndex  = 0;
+	public static void main(String[] args)throws IOException
+	{
+        BufferedReader reader = new BufferedReader(new FileReader("INPUT.txt"));
+        String line;
+        while((line=reader.readLine())!=null) {
+        	String[] tokens = line.trim().split("\\s+");
+        	if(tokens.length>0) {
+        		lines.add(tokens);
+        		findSymbols(tokens);
+        		findLiterals(tokens);
+        		updateLC(tokens);
+        	}
+        }
+        generateSymbolTable();
+        generateLiteralTable();
+        generateIntermediateCode();
+        generatePoolTable();
+	}
+	
+	private static void generatePoolTable() throws IOException{
+		// TODO Auto-generated method stub
+		BufferedWriter poolWriter = new BufferedWriter(new FileWriter("pool.txt"));
+		poolWriter.write("Pool Table\nIndex\n");
+		for(int index:poolTab) {
+			
+		}
+	}
+	private static void generateIntermediateCode() throws IOException{
+		// TODO Auto-generated method stub
+		BufferedWriter interWriter = new BufferedWriter(new FileWriter("inter.txt"));
+		for(String[] tokens : lines) {
+			for(String token:tokens) {
+				if(AD.contains(token)) {
+					if(token.equals("START"))interWriter.write("AD 1 C "+tokens[1]);
+					else interWriter.write("AD 2 ");
+					break;
+				}
+				else if(IS.contains(token)) {
+					int code = IS.indexOf(token)+1;
+					interWriter.write("IS " + code + " ");
+				}
+				else if(DL.contains(token)) {
+					int code = DL.indexOf(token)+1;
+					interWriter.write("DL "+code+" ");
+				}
+				else if(litTab.containsKey(token)) {
+					int litNum = new ArrayList<>(litTab.keySet()).indexOf(token)+1;
+					interWriter.write("L "+litNum+" ");
+				}
+				else if(symTab.containsKey(token)) {
+					interWriter.write(token+" ");
+				}else if(REG.contains(token)) {
+					interWriter.write(token+" ");
+				}
+			}
+			interWriter.write("\n");
+		}
+		interWriter.close();
+	}
+	
+	private static void generateSymbolTable() throws IOException{
+		// TODO Auto-generated method stub
+		BufferedWriter symWriter = new BufferedWriter(new FileWriter("sym.txt"));
+		symWriter.write("Symbol Table\nName\tAddress\n");
+		for(Map.Entry<String,Integer> entry:symTab.entrySet()) {
+			symWriter.write(entry.getKey()+"\t"+entry.getValue()+"\n");
+		}
+		symWriter.close();
+	}
+	private static void generateLiteralTable() throws IOException {
+		// TODO Auto-generated method stub
+		BufferedWriter litWriter = new BufferedWriter(new FileWriter("lit.txt"));
+		litWriter.write("Literal Table\nName\tAddress\n");
+		for(Map.Entry<String, Integer> entry:litTab.entrySet()) {
+			litWriter.write(entry.getKey()+"\t"+entry.getValue()+"\n");
+		}
+		litWriter.close();
+	}
+	
+	static void findSymbols(String[] tokens) {
+		// TODO Auto-generated method stub
+		for(String token:tokens) {
+			if(SYMB.contains(token)&&!symTab.containsKey(token)) {
+				symTab.put(token, -1);
+			}
+		}
+	}
+	
+	static void findLiterals(String[] tokens) {
+		// TODO Auto-generated method stub
+		for(String token:tokens) {
+			if(token.startsWith("=")&&!litTab.containsKey(token)) {
+				symTab.put(token, -1);
+			}
+		}
+	}
+	
+	static void updateLC(String[] tokens) {
+		// TODO Auto-generated method stub
+		if(tokens[0].equals("START")){
+			lc = Integer.parseInt(tokens[1]);
+			System.out.println("Location Counter initialized to: " + lc);
+            return;
+		}
+		if(IS.contains(tokens[0])) lc++;
+		for(int i=0;i<tokens.length;i++) {
+			String token = tokens[i];
+			if(symTab.containsKey(token)&&symTab.get(token)==-1) {
+				symTab.put(token, lc);
+				lc++;
+			}
+			if(token.equals("DS")) {
+				int size = Integer.parseInt(tokens[i+1]);
+				symTab.put(tokens[i-1], lc);
+				lc+=size;
+			}else if(token.equals("DC")) {
+				symTab.put(tokens[i-1],lc);
+				lc++;
+			}
+		}
+		if (tokens[0].equals("END")) {
+            poolTab.add(litIndex + 1); // pool starts at next index (1-based)
+            for (Map.Entry<String, Integer> entry : litTab.entrySet()) {
+                if (entry.getValue() == -1) {
+                    litTab.put(entry.getKey(), lc++);
+                    litIndex++;
+                }
+            }
+        }
+	}
+}
+
